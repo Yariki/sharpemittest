@@ -14,10 +14,12 @@ namespace LoadAssembly
         internal static readonly string PersonChangedTypeName = "Library1.PersonChanged";
         internal static readonly string PersonsChangedTypeName = "Library1.PersonsChanged";
         internal static readonly string PersonsTypeName = "Library1.Person";
+        internal static readonly string DataDvcStatusTypeName = "Library1.DataDvcStatus";
 
         private Type _personChangedType;
         private Type _personsChangedType;
         private Type _personType;
+        private Type _dataDvcStatusType;
         
         private Type _type;
         
@@ -27,6 +29,7 @@ namespace LoadAssembly
         private MethodInfo _invokePerson;
         private MethodInfo _invokePersons;
         private MethodInfo _callback;
+        private MethodInfo _callbackArr;
 
         private DynamicMethod _dynamicMethod;
         private DynamicMethod _dynamicMethod2;
@@ -39,6 +42,7 @@ namespace LoadAssembly
             _personChangedType = _type.Assembly.GetType(PersonChangedTypeName);
             _personsChangedType = _type.Assembly.GetType(PersonsChangedTypeName);
             _personType = _type.Assembly.GetType(PersonsTypeName);
+            _dataDvcStatusType = _type.Assembly.GetType(DataDvcStatusTypeName);
             
 
             _subscribeToOne = _type.GetMethods(BindingFlags.Public | BindingFlags.Instance)
@@ -54,11 +58,13 @@ namespace LoadAssembly
                 .FirstOrDefault(mi => mi.Name.Equals("InvokePersons",StringComparison.InvariantCultureIgnoreCase));
             
             _callback = typeof(DataSvcProxy).GetMethod("PersonCallback",BindingFlags.Instance | BindingFlags.NonPublic);
+            _callbackArr = typeof(DataSvcProxy).GetMethod("PersonsCallback",BindingFlags.Instance | BindingFlags.NonPublic);
 
             var arrType = Array.CreateInstance(_personType, 1).GetType();
+            var dataArrType = Array.CreateInstance(_dataDvcStatusType, 1).GetType();
             
             Type[] Args = new[] {typeof(DataSvcProxy), _personType};
-            Type[] Args2 = new[] {typeof(DataSvcProxy), arrType};
+            Type[] Args2 = new[] {typeof(DataSvcProxy), typeof(Guid),arrType,dataArrType};
             
             _dynamicMethod = new DynamicMethod("InternalPersonCallback", null, Args, typeof(DataSvcProxy),true);
             _dynamicMethod2 = new DynamicMethod("InternalPersonCallback2", null, Args2, typeof(DataSvcProxy),true);
@@ -75,12 +81,17 @@ namespace LoadAssembly
             ilGenerator.Emit(OpCodes.Nop);
             ilGenerator.Emit(OpCodes.Ldarg_0);
             ilGenerator.Emit(OpCodes.Ldarg_1);
-            ilGenerator.EmitCall(OpCodes.Call,_callback,null);
+            ilGenerator.Emit(OpCodes.Ldarg_2);
+            ilGenerator.Emit(OpCodes.Ldarg_3);
+            ilGenerator.EmitCall(OpCodes.Call,_callbackArr,null);
             ilGenerator.Emit(OpCodes.Nop);
             ilGenerator.Emit(OpCodes.Ret);
             
             _dynamicMethod.DefineParameter(1, ParameterAttributes.In, "person");
-            _dynamicMethod2.DefineParameter(1, ParameterAttributes.In, "persons");
+            
+            _dynamicMethod2.DefineParameter(1, ParameterAttributes.In, "id");
+            _dynamicMethod2.DefineParameter(2, ParameterAttributes.In, "persons");
+            _dynamicMethod2.DefineParameter(3, ParameterAttributes.In, "status");
 
             var str = _dynamicMethod.ToString();
             
@@ -125,8 +136,26 @@ namespace LoadAssembly
                 Console.WriteLine("One Object:");
                 Console.WriteLine(result);    
             }
-            
-            
+        }
+
+        private void PersonsCallback(Guid id, object[] items, object[] status)
+        {
+            Console.WriteLine(id);
+            if (items != null)
+            {
+                foreach (var item in items)
+                {
+                    Console.WriteLine(item);
+                }
+            }
+
+            if (status != null)
+            {
+                foreach (var st in status)
+                {
+                    Console.WriteLine(st);
+                }
+            }
         }
         
     }

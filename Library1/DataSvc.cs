@@ -5,7 +5,7 @@ namespace Library1
 {
     public delegate void PersonChanged(Person person);
 
-    public delegate void PersonsChanged(Person[] persons);
+    public delegate void PersonsChanged(Guid id, Person[] persons, DataDvcStatus[] status);
     
     public class DataSvc
     {
@@ -54,7 +54,13 @@ namespace Library1
             list.Add(new Person(){Age = count, Name = $"Person{count}"});
             count++;
             list.Add(new Person(){Age = count, Name = $"Person{count}"});
-            this._personsChanged(list.ToArray());
+            var listStatus = new List<DataDvcStatus>()
+            {
+                new DataDvcStatus(1,DateTime.Now),
+                new DataDvcStatus(0,DateTime.Now)
+            };
+            
+            this._personsChanged(Guid.NewGuid(),list.ToArray(),listStatus.ToArray());
         }
         
         
