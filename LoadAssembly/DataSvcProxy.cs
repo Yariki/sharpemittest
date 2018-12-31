@@ -15,11 +15,13 @@ namespace LoadAssembly
         internal static readonly string PersonsChangedTypeName = "Library1.PersonsChanged";
         internal static readonly string PersonsTypeName = "Library1.Person";
         internal static readonly string DataDvcStatusTypeName = "Library1.DataDvcStatus";
+        internal static readonly string UPdateRateTypeName = "Library1.UpdateRate";
 
         private Type _personChangedType;
         private Type _personsChangedType;
         private Type _personType;
         private Type _dataDvcStatusType;
+        private Type _updateRateType;
         
         private Type _type;
         
@@ -30,6 +32,8 @@ namespace LoadAssembly
         private MethodInfo _invokePersons;
         private MethodInfo _callback;
         private MethodInfo _callbackArr;
+
+        private PropertyInfo _updateRate;
 
         private DynamicMethod _dynamicMethod;
         private DynamicMethod _dynamicMethod2;
@@ -43,6 +47,7 @@ namespace LoadAssembly
             _personsChangedType = _type.Assembly.GetType(PersonsChangedTypeName);
             _personType = _type.Assembly.GetType(PersonsTypeName);
             _dataDvcStatusType = _type.Assembly.GetType(DataDvcStatusTypeName);
+            _updateRateType = _type.Assembly.GetType(UPdateRateTypeName);
             
 
             _subscribeToOne = _type.GetMethods(BindingFlags.Public | BindingFlags.Instance)
@@ -56,6 +61,9 @@ namespace LoadAssembly
             
             _invokePersons = _type.GetMethods(BindingFlags.Public | BindingFlags.Instance)
                 .FirstOrDefault(mi => mi.Name.Equals("InvokePersons",StringComparison.InvariantCultureIgnoreCase));
+
+            _updateRate = _type.GetProperty("UpdateRate", BindingFlags.Public | BindingFlags.Instance);
+                
             
             _callback = typeof(DataSvcProxy).GetMethod("PersonCallback",BindingFlags.Instance | BindingFlags.NonPublic);
             _callbackArr = typeof(DataSvcProxy).GetMethod("PersonsCallback",BindingFlags.Instance | BindingFlags.NonPublic);
@@ -96,6 +104,23 @@ namespace LoadAssembly
             var str = _dynamicMethod.ToString();
             
         }
+
+        public UpdateRate UpdateRate
+        {
+            get
+            {
+                var originalValue  = _updateRate.GetValue(_dataSvc);
+                var convertedValue = (UpdateRate)Enum.Parse(typeof(UpdateRate), originalValue.ToString());
+                return convertedValue;
+            }
+            set
+            {
+                var underlyingType = _updateRate.PropertyType.GetEnumUnderlyingType();
+                var val = Convert.ChangeType(value, underlyingType);
+                _updateRate.SetValue(_dataSvc,val);
+            }
+        }
+
 
         public void SubscribeToOne()
         {

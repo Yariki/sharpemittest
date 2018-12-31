@@ -13,9 +13,16 @@ namespace Library1
         private PersonsChanged _personsChanged;
 
         private int count = 0;
+        private UpdateRate _rate;
 
         public DataSvc()
         {
+        }
+
+        public UpdateRate UpdateRate
+        {
+            get { return _rate; }
+            set { _rate = value; }
         }
 
         public void Subscribe(PersonChanged personChanged)

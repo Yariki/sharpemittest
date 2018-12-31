@@ -46,20 +46,25 @@ namespace LoadAssembly
            
             
             var proxy = new DataSvcProxy(type);
+
+            Console.WriteLine(proxy.UpdateRate);
             
-            proxy.SubscribeToOne();
-            proxy.InvokeOne();
+            proxy.UpdateRate = UpdateRate.veryLowUpdateRate;
             
-            proxy.SubscribeToArr();
-            proxy.InvokeArray();
-            
-            proxy = new DataSvcProxy(type);
-            
-            proxy.SubscribeToOne();
-            proxy.InvokeOne();
-            
-            proxy.SubscribeToArr();
-            proxy.InvokeArray();
+            Console.WriteLine(proxy.UpdateRate);
+//            proxy.SubscribeToOne();
+//            proxy.InvokeOne();
+//            
+//            proxy.SubscribeToArr();
+//            proxy.InvokeArray();
+//            
+//            proxy = new DataSvcProxy(type);
+//            
+//            proxy.SubscribeToOne();
+//            proxy.InvokeOne();
+//            
+//            proxy.SubscribeToArr();
+//            proxy.InvokeArray();
             
             Console.WriteLine("Ok.");
 
