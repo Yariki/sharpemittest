@@ -52,8 +52,8 @@ namespace LoadAssembly
             proxy.UpdateRate = UpdateRate.veryLowUpdateRate;
             
             Console.WriteLine(proxy.UpdateRate);
-//            proxy.SubscribeToOne();
-//            proxy.InvokeOne();
+            proxy.SubscribeToOne();
+            proxy.InvokeOne();
 //            
 //            proxy.SubscribeToArr();
 //            proxy.InvokeArray();

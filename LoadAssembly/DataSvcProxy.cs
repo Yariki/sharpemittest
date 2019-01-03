@@ -125,14 +125,14 @@ namespace LoadAssembly
         public void SubscribeToOne()
         {
             var cb = _dynamicMethod.CreateDelegate(_personChangedType, this);
-            _subscribeToOne.Invoke(_dataSvc,new []{cb});
+            var id =_subscribeToOne.Invoke(_dataSvc,new []{cb});
             
         }
 
         public void SubscribeToArr()
         {
             var cb = _dynamicMethod2.CreateDelegate(_personsChangedType, this);
-            _subscribeToArray.Invoke(_dataSvc,new []{cb});
+            var id = _subscribeToArray.Invoke(_dataSvc,new []{cb});
         }
 
         public void InvokeOne()
@@ -158,8 +158,23 @@ namespace LoadAssembly
             }
             else
             {
+                var person = new PersonProxy();
+
+                var properties = typeof(PersonProxy).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+                foreach (var propertyInfo in properties)
+                {
+                    var piOriginal = result.GetType()
+                        .GetProperty(propertyInfo.Name, BindingFlags.Public | BindingFlags.Instance);
+                    var value = piOriginal.GetValue(result);
+                    propertyInfo.SetValue(person,value);
+                }
+                
                 Console.WriteLine("One Object:");
                 Console.WriteLine(result);    
+                
+                Console.WriteLine("Proxy:");
+                Console.WriteLine(person);
             }
         }
 

@@ -25,16 +25,18 @@ namespace Library1
             set { _rate = value; }
         }
 
-        public void Subscribe(PersonChanged personChanged)
+        public Guid Subscribe(PersonChanged personChanged)
         {
             var svc = this;
             this._personChanged = (PersonChanged) Delegate.Combine(this._personChanged, personChanged);
+            return Guid.NewGuid();
         }
             
-        public void Subscribe(PersonsChanged personsChanged)
+        public Guid Subscribe(PersonsChanged personsChanged)
         {
             var svc = this;
             this._personsChanged = (PersonsChanged) Delegate.Combine(this._personsChanged, personsChanged);
+            return Guid.NewGuid();
         }
 
         public void InvokePerson()
